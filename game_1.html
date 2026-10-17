@@ -220,12 +220,25 @@ header p {
 }
 .note + .note { margin-top: 6px; font-weight: 600; opacity: 0.85; }
 #status { min-height: 1.45em; }
+.stat {
+  position: fixed;
+  top: 6px;
+  left: 8px;
+  z-index: 5;
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  opacity: 0.5;
+  pointer-events: none;
+}
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; }
 }
 </style>
 </head>
 <body>
+<div class="stat" id="stat" title="Download clicks" hidden></div>
 <div class="wrap">
   <div class="sky">
     <div class="cloud a"></div>
@@ -464,9 +477,50 @@ if (reduced) {
   }, 8000);
 }
 
+const stat = document.getElementById("stat");
+let owner = false;
+
+try {
+  const flag = new URLSearchParams(location.search).get("stats");
+  if (flag === "off") localStorage.removeItem("bh_owner");
+  else if (flag !== null) localStorage.setItem("bh_owner", "1");
+  owner = localStorage.getItem("bh_owner") === "1";
+} catch (e) {
+  owner = false;
+}
+
+async function loadCount() {
+  const tag = document.querySelector("script[data-goatcounter]");
+  if (!tag) return;
+  const base = tag.dataset.goatcounter.replace(/\/count$/, "");
+  for (const path of ["download-apk", "/download-apk"]) {
+    try {
+      const res = await fetch(base + "/counter/" + encodeURIComponent(path) + ".json");
+      if (!res.ok) continue;
+      const data = await res.json();
+      stat.textContent = data.count;
+      return;
+    } catch (e) {
+      continue;
+    }
+  }
+  stat.textContent = "?";
+}
+
+if (owner) {
+  stat.hidden = false;
+  stat.textContent = "...";
+  window.addEventListener("load", loadCount);
+}
+
 button.addEventListener("click", () => {
+  if (window.goatcounter && window.goatcounter.count) {
+    window.goatcounter.count({ path: "download-apk", title: "APK download", event: true });
+  }
   status.textContent = "Download started. Open game.apk to install.";
+  if (owner) setTimeout(loadCount, 2000);
 });
 </script>
+<script data-goatcounter="https://YOUR_CODE.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>
