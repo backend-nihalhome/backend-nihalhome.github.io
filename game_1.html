@@ -1,95 +1,471 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en" data-theme="teal">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Game Download</title>
+<title>Download Block Hop</title>
 <style>
 :root {
-  --bg: #14213d;
-  --panel: #1d2f55;
-  --ink: #f4f6fb;
-  --muted: #a9b6d3;
-  --accent: #ffb703;
-  --accent-ink: #1a1400;
+  --sky: #7bd5ce;
+  --hill: #66cebf;
+  --ground: #52c4b5;
+  --edge: #41b3a4;
+  --block: #ff7a45;
+  --shade: rgba(0, 0, 0, 0.12);
+  --spike: #212932;
+  --stroke: #2d3748;
+  --plane: #3b4a54;
+  --tail: #e74c3c;
+  --window: #aee9ff;
+  --ink: #2b4541;
+  --gold: #ffd452;
+  --gold-ink: #4a2e00;
 }
-* { box-sizing: border-box; }
-html, body { height: 100%; margin: 0; }
+:root[data-theme="sunset"] {
+  --sky: #ff9d5c;
+  --hill: #f2793f;
+  --ground: #e8632c;
+  --edge: #c94f1f;
+  --block: #2d3748;
+  --shade: rgba(255, 255, 255, 0.18);
+  --spike: #33241a;
+  --stroke: #3b2312;
+  --plane: #33241a;
+  --tail: #ffe066;
+  --window: #fff6dd;
+  --ink: #3b2312;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
 body {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--sky);
+  color: var(--ink);
+  transition: background-color 0.8s ease;
+}
+.wrap {
+  width: 100%;
+  max-width: 440px;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 700px;
+  max-height: 850px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+}
+.sky {
+  position: relative;
+  flex: 1;
+  min-height: 470px;
+  background-color: var(--sky);
+  transition: background-color 0.8s ease;
+}
+.sky::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 35%, rgba(255, 255, 255, 0.42));
+  pointer-events: none;
+}
+.cloud {
+  position: absolute;
+  height: 26px;
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.6);
+}
+.cloud::after {
+  content: "";
+  position: absolute;
+  left: 24%;
+  bottom: 55%;
+  width: 40%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: inherit;
+}
+.cloud.a { width: 92px; right: 26px; top: 40%; }
+.cloud.b { width: 64px; left: 30px; top: 52%; opacity: 0.8; }
+header {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 40px 26px 0;
+}
+h1 {
+  font-size: clamp(54px, 17vw, 76px);
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  color: #ffffff;
+  text-shadow: 0 4px 0 var(--edge);
+  transition: text-shadow 0.8s ease;
+}
+header p {
+  margin-top: 18px;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--ink);
+  transition: color 0.8s ease;
+}
+.score {
+  text-align: right;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 800;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+.score b {
+  display: block;
+  min-width: 56px;
+  font-size: 40px;
+  font-weight: 900;
+  line-height: 1;
+}
+.stage {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 190px;
+  overflow: hidden;
+  container-type: inline-size;
+}
+.hill {
+  position: absolute;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background-color: var(--hill);
+  transition: background-color 0.8s ease;
+}
+.hill.one { width: 66cqw; left: -22cqw; bottom: -40cqw; }
+.hill.two { width: 80cqw; left: 30cqw; bottom: -52cqw; }
+.hill.three { width: 58cqw; right: -26cqw; bottom: -34cqw; }
+.ob,
+.player {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  will-change: transform;
+}
+.player {
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  background: #ffffff;
+}
+.player::after {
+  content: "";
+  position: absolute;
+  inset: 11px;
+  border: 3px solid var(--stroke);
+}
+.block {
+  border-radius: 6px;
+  background-color: var(--block);
+  transition: background-color 0.8s ease;
+}
+.block::after {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  background: var(--shade);
+}
+.spike {
+  background-color: var(--spike);
+  transition: background-color 0.8s ease;
+}
+.pb { fill: var(--plane); }
+.pt { fill: var(--tail); }
+.pw { fill: var(--window); }
+.ground {
+  padding: 28px 24px calc(28px + env(safe-area-inset-bottom, 0px));
+  background-color: var(--ground);
+  border-top: 6px solid var(--edge);
+  text-align: center;
+  transition: background-color 0.8s ease, border-color 0.8s ease;
+}
+.btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
-  background: var(--bg);
-  color: var(--ink);
-  font-family: "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
-}
-main {
+  gap: 12px;
   width: 100%;
-  max-width: 420px;
-  padding: 40px 32px;
-  background: var(--panel);
-  border-radius: 20px;
-  text-align: center;
+  padding: 18px 24px;
+  border-radius: 50px;
+  background: var(--gold);
+  color: var(--gold-ink);
+  font-size: 21px;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.28);
+  transition: transform 0.1s;
 }
-h1 {
-  margin: 0 0 8px;
-  font-size: 2rem;
-  letter-spacing: 0.02em;
-}
-p {
-  margin: 0 0 28px;
-  color: var(--muted);
-  line-height: 1.5;
-}
-button {
-  width: 100%;
-  padding: 16px 24px;
-  border: 0;
-  border-radius: 12px;
-  background: var(--accent);
-  color: var(--accent-ink);
-  font: inherit;
-  font-size: 1.1rem;
+.btn:active { transform: scale(0.95); }
+.btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; }
+.btn svg { width: 24px; height: 24px; flex: none; }
+.note {
+  margin-top: 16px;
+  font-size: 14px;
   font-weight: 700;
-  cursor: pointer;
-  transition: transform 0.12s ease;
+  line-height: 1.45;
+  color: var(--ink);
+  transition: color 0.8s ease;
 }
-button:active { transform: scale(0.97); }
-button:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
-button:disabled { opacity: 0.7; cursor: default; }
-#status {
-  min-height: 1.4em;
-  margin: 16px 0 0;
-  font-size: 0.9rem;
-  color: var(--muted);
+.note + .note { margin-top: 6px; font-weight: 600; opacity: 0.85; }
+#status { min-height: 1.45em; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; }
 }
 </style>
 </head>
 <body>
-<main>
-  <h1>Game</h1>
-  <p>Android ke liye APK download karein. Install karne se pehle phone mein "Unknown sources" allow karna pad sakta hai.</p>
-  <button id="downloadBtn" type="button">Download</button>
-  <div id="status" role="status" aria-live="polite"></div>
-</main>
+<div class="wrap">
+  <div class="sky">
+    <div class="cloud a"></div>
+    <div class="cloud b"></div>
+    <header>
+      <div>
+        <h1>Block<br>Hop</h1>
+        <p>Tap to jump.<br>Keep hopping.</p>
+      </div>
+      <div class="score" aria-hidden="true">Score<b id="score">0</b></div>
+    </header>
+    <div class="stage" id="stage" aria-hidden="true">
+      <div class="hill one"></div>
+      <div class="hill two"></div>
+      <div class="hill three"></div>
+      <div class="player" id="player"></div>
+    </div>
+  </div>
+  <div class="ground">
+    <a class="btn" id="downloadBtn" href="game.apk" download="game.apk">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 3v12"></path>
+        <path d="M6 10l6 6 6-6"></path>
+        <path d="M5 21h14"></path>
+      </svg>
+      Download
+    </a>
+    <p class="note">For Android. Plays offline, no internet needed.</p>
+    <p class="note" id="status" role="status" aria-live="polite">If Android asks, allow installs from this browser.</p>
+  </div>
+</div>
 <script>
-const btn = document.getElementById("downloadBtn");
+const root = document.documentElement;
 const status = document.getElementById("status");
+const button = document.getElementById("downloadBtn");
+const stage = document.getElementById("stage");
+const playerEl = document.getElementById("player");
+const scoreEl = document.getElementById("score");
+const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-btn.addEventListener("click", () => {
-  const link = document.createElement("a");
-  link.href = "/game.apk";
-  link.download = "game.apk";
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
+const G = 0.65;
+const SIZE = 44;
+const PLANE_SVG = '<svg viewBox="-4 -6 82 42" width="82" height="42" style="position:absolute;left:-4px;top:-6px;overflow:visible"><polygon class="pb" points="29,12 11,-3.6 25,12"/><polygon class="pb" points="29,18 11,33.6 25,18"/><ellipse class="pb" cx="33" cy="15" rx="33" ry="11.5"/><polygon class="pt" points="58,15 74,4 74,26"/><circle class="pw" cx="47.5" cy="15" r="4.8"/></svg>';
 
-  status.textContent = "Download shuru ho gaya hai.";
-  btn.disabled = true;
-  setTimeout(() => {
-    btn.disabled = false;
-  }, 3000);
+let W = stage.clientWidth;
+let PX = W * 0.22;
+let obs = [];
+let speed = 13.5;
+let score = 0;
+let frames = 0;
+let lastSpawn = 0;
+let nextGap = 40;
+const p = { y: 0, vy: 0, rot: 0, spin: 0, pending: false };
+
+function box(cls, w, h, bottom) {
+  const d = document.createElement("div");
+  d.className = "ob " + cls;
+  d.style.width = w + "px";
+  d.style.height = h + "px";
+  d.style.bottom = bottom + "px";
+  stage.appendChild(d);
+  return d;
+}
+
+function add(kind, x, bottom) {
+  let o;
+  if (kind === "spikes") {
+    const n = Math.random() > 0.5 ? 3 : 4;
+    const d = box("spike", n * 16, 24, 0);
+    const pts = ["0px 24px"];
+    for (let i = 0; i < n; i++) pts.push(i * 16 + 8 + "px 0px", (i + 1) * 16 + "px 24px");
+    d.style.clipPath = "polygon(" + pts.join(",") + ")";
+    o = { el: d, x, w: n * 16, h: 24, b: 0, ground: true };
+  } else if (kind === "block") {
+    o = { el: box("block", 34, 34, 0), x, w: 34, h: 34, b: 0, ground: true };
+  } else {
+    const d = box("plane", 66, 30, bottom);
+    d.innerHTML = PLANE_SVG;
+    o = { el: d, x, w: 66, h: 30, b: bottom, ground: false };
+  }
+  o.passed = false;
+  obs.push(o);
+}
+
+const order = ["spikes", "block", "plane", "stack", "comboSpikes", "comboBlock"];
+let turn = 0;
+
+function spawn() {
+  const x = Math.max(W + 40, PX + SIZE / 2 + speed * 20.5 + 20);
+  const k = order[turn % order.length];
+  turn++;
+  if (k === "spikes" || k === "block") {
+    add(k, x, 0);
+    return;
+  }
+  if (k === "plane") {
+    add("plane", x, 70);
+    return;
+  }
+  if (k === "stack") {
+    add("plane", x, 70);
+    add("plane", x, 114);
+    return;
+  }
+  add(k === "comboSpikes" ? "spikes" : "block", x, 0);
+  add("plane", x, 70);
+}
+
+function jump(vy) {
+  p.vy = vy;
+  p.y = 0.01;
+  p.spin = Math.PI / ((2 * vy) / G);
+}
+
+function bot() {
+  if (p.pending && p.y >= 57) {
+    p.pending = false;
+    p.vy = 9.4;
+    const left = (p.vy + Math.sqrt(p.vy * p.vy + 2 * G * p.y)) / G;
+    const target = Math.ceil(p.rot / Math.PI) * Math.PI + Math.PI;
+    p.spin = (target - p.rot) / left;
+    return;
+  }
+  if (p.y > 0) return;
+  for (const o of obs) {
+    if (!o.ground) continue;
+    const plane = obs.find((q) => !q.ground && Math.abs(q.x - o.x) < 1);
+    const ref = plane ? plane.x + 35 : o.x + o.w / 2;
+    const d = ref - (PX + SIZE / 2);
+    const reach = plane ? 20.5 : 11.5 / G;
+    if (d > 0 && d <= speed * reach) {
+      jump(11.5);
+      p.pending = !!plane;
+      return;
+    }
+  }
+}
+
+function step() {
+  frames++;
+  speed = Math.min(22.5, 13.5 + frames / 133);
+  if (frames - lastSpawn >= nextGap) {
+    spawn();
+    lastSpawn = frames;
+    nextGap = 70;
+  }
+  bot();
+  if (p.y > 0) {
+    p.vy -= G;
+    p.y += p.vy;
+    p.rot += p.spin;
+    if (p.y <= 0) {
+      p.y = 0;
+      p.vy = 0;
+      p.spin = 0;
+      p.rot = Math.round(p.rot / (Math.PI / 2)) * (Math.PI / 2);
+    }
+  }
+  for (const o of obs) {
+    o.x -= speed;
+    if (!o.passed && o.x + o.w < PX) {
+      o.passed = true;
+      if (o.ground) {
+        score++;
+        scoreEl.textContent = score;
+      }
+    }
+  }
+  obs = obs.filter((o) => {
+    if (o.x + o.w < -40) {
+      o.el.remove();
+      return false;
+    }
+    return true;
+  });
+}
+
+function reset() {
+  obs.forEach((o) => o.el.remove());
+  obs = [];
+  p.y = 0;
+  p.vy = 0;
+  p.rot = 0;
+  p.spin = 0;
+  speed = 13.5;
+  p.pending = false;
+  score = 0;
+  frames = 0;
+  turn = 0;
+  lastSpawn = 0;
+  nextGap = 40;
+  scoreEl.textContent = "0";
+}
+
+function render() {
+  playerEl.style.transform = "translate(" + PX + "px," + -p.y + "px) rotate(" + p.rot + "rad)";
+  for (const o of obs) o.el.style.transform = "translateX(" + o.x + "px)";
+}
+
+let last = performance.now();
+let acc = 0;
+
+function loop(now) {
+  const dt = Math.min(100, now - last);
+  last = now;
+  acc += dt / 16.667;
+  while (acc >= 1) {
+    step();
+    acc -= 1;
+  }
+  render();
+  requestAnimationFrame(loop);
+}
+
+window.addEventListener("resize", () => {
+  W = stage.clientWidth;
+  PX = W * 0.22;
+});
+
+if (reduced) {
+  add("plane", W * 0.38, 70);
+  add("block", W * 0.6, 0);
+  add("spikes", W * 0.78, 0);
+  obs[0].x = W * 0.38;
+  obs[1].x = W * 0.6;
+  obs[2].x = W * 0.78;
+  render();
+} else {
+  reset();
+  requestAnimationFrame(loop);
+  const themes = ["teal", "sunset"];
+  let current = 0;
+  setInterval(() => {
+    current = (current + 1) % themes.length;
+    root.dataset.theme = themes[current];
+  }, 8000);
+}
+
+button.addEventListener("click", () => {
+  status.textContent = "Download started. Open game.apk to install.";
 });
 </script>
 </body>
