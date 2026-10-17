@@ -514,8 +514,19 @@ if (owner) {
 }
 
 button.addEventListener("click", () => {
-  if (window.goatcounter && window.goatcounter.count) {
+  let counted = false;
+  try {
+    counted = localStorage.getItem("bh_counted") === "1";
+  } catch (e) {
+    counted = false;
+  }
+  if (!counted && window.goatcounter && window.goatcounter.count) {
     window.goatcounter.count({ path: "download-apk", title: "APK download", event: true });
+    try {
+      localStorage.setItem("bh_counted", "1");
+    } catch (e) {
+      counted = true;
+    }
   }
   status.textContent = "Download started. Open game.apk to install.";
   if (owner) setTimeout(loadCount, 2000);
