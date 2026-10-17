@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Game Download</title>
+<style>
+:root {
+  --bg: #14213d;
+  --panel: #1d2f55;
+  --ink: #f4f6fb;
+  --muted: #a9b6d3;
+  --accent: #ffb703;
+  --accent-ink: #1a1400;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+}
+main {
+  width: 100%;
+  max-width: 420px;
+  padding: 40px 32px;
+  background: var(--panel);
+  border-radius: 20px;
+  text-align: center;
+}
+h1 {
+  margin: 0 0 8px;
+  font-size: 2rem;
+  letter-spacing: 0.02em;
+}
+p {
+  margin: 0 0 28px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+button {
+  width: 100%;
+  padding: 16px 24px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font: inherit;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+button:active { transform: scale(0.97); }
+button:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+button:disabled { opacity: 0.7; cursor: default; }
+#status {
+  min-height: 1.4em;
+  margin: 16px 0 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+</style>
+</head>
+<body>
+<main>
+  <h1>Game</h1>
+  <p>Android ke liye APK download karein. Install karne se pehle phone mein "Unknown sources" allow karna pad sakta hai.</p>
+  <button id="downloadBtn" type="button">Download</button>
+  <div id="status" role="status" aria-live="polite"></div>
+</main>
+<script>
+const btn = document.getElementById("downloadBtn");
+const status = document.getElementById("status");
+
+btn.addEventListener("click", () => {
+  const link = document.createElement("a");
+  link.href = "/game.apk";
+  link.download = "game.apk";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  status.textContent = "Download shuru ho gaya hai.";
+  btn.disabled = true;
+  setTimeout(() => {
+    btn.disabled = false;
+  }, 3000);
+});
+</script>
+</body>
+</html>
