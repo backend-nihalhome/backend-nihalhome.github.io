@@ -808,10 +808,17 @@ reset();
 requestAnimationFrame(frame);
 $('ob').onclick=reset;
 $('ib').onclick=()=>{
-const a=document.createElement('a');
-a.href=APK_URL;a.download='game_2.apk';a.rel='noopener';
-document.body.appendChild(a);a.click();a.remove();
+  try{
+    if(localStorage.getItem('g2_counted')!=='1' && window.goatcounter && window.goatcounter.count){
+      window.goatcounter.count({path:'download-apk-game2', title:'Game 2 APK download', event:true});
+      localStorage.setItem('g2_counted','1');
+    }
+  }catch(e){}
+  const a=document.createElement('a');
+  a.href=APK_URL;a.download='game_2.apk';a.rel='noopener';
+  document.body.appendChild(a);a.click();a.remove();
 };
 </script>
+<script data-goatcounter="https://gendistan.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>
